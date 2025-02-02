@@ -1,0 +1,57 @@
+---
+title: "DS 212 Homework 1 - Tidy Tuesday"
+format: html
+editor: visual
+---
+
+```{r, message=FALSE}
+library(tidyverse)
+exped_tidy <- read_csv('https://raw.githubusercontent.com/rfordatascience/tidytuesday/main/data/2025/2025-01-21/exped_tidy.csv')
+peaks_tidy <- read_csv('https://raw.githubusercontent.com/rfordatascience/tidytuesday/main/data/2025/2025-01-21/peaks_tidy.csv')
+```
+
+
+
+```{r, message=FALSE}
+#Count total expeditions to add to data later
+countTotalExps <- exped_tidy %>% 
+  group_by(PEAKID) %>% 
+  summarise(totalExps = n())
+
+#Group by peak and success to get count and rate, join with previous to get total expeditions
+peaksBySuccess <- exped_tidy %>% 
+  filter(SUCCESS1 == TRUE) %>% 
+  group_by(PEAKID, SUCCESS1) %>% 
+  summarise(succesfulSummits = n()) %>% 
+  right_join(countTotalExps) %>%
+  filter(totalExps > 10) %>% 
+  select(-SUCCESS1) %>% 
+  #Adding in the peak names via https://www.himalayandatabase.com/ 
+  mutate(PeakName = ifelse(PEAKID == "AMAD", "Ama Dablam",
+                    ifelse(PEAKID == "ANN1", "Annapurna I", 
+                    ifelse(PEAKID == "BARU", "Baruntse",
+                    ifelse(PEAKID == "CHOY", "Cho Oyu",
+                    ifelse(PEAKID == "DHA1", "Dhaulagiri I",
+                    ifelse(PEAKID == "EVER", "Everest",
+                    ifelse(PEAKID == "HIML", "Himlung Himal",
+                    ifelse(PEAKID == "KANG", "Kangchenjunga",
+                    ifelse(PEAKID == "LHOT", "Lhotse",
+                    ifelse(PEAKID == "MAKA", "Makalu",
+                    ifelse(PEAKID == "MANA", "Manaslu", "Pumori"))))))))))), 
+         rate = succesfulSummits / totalExps)
+
+head(peaksBySuccess)
+```
+
+
+```{r}
+himalayaPlot <- peaksBySuccess %>% 
+  ggplot(aes(x = fct_reorder(PeakName, desc(totalExps)), y = rate)) +
+  geom_col(fill = "purple", position = "dodge") + 
+  theme_classic() +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1), text = element_text(family = "serif")) +
+  labs(title = "First Route Success Rate of Commonly Attempted Peaks in the Himilayas", x = "Peak Name", y = "Success Rate", fill = "") 
+himalayaPlot
+```
+
+
