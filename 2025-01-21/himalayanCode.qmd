@@ -10,8 +10,6 @@ exped_tidy <- read_csv('https://raw.githubusercontent.com/rfordatascience/tidytu
 peaks_tidy <- read_csv('https://raw.githubusercontent.com/rfordatascience/tidytuesday/main/data/2025/2025-01-21/peaks_tidy.csv')
 ```
 
-
-
 ```{r, message=FALSE}
 #Count total expeditions to add to data later
 countTotalExps <- exped_tidy %>% 
@@ -43,7 +41,6 @@ peaksBySuccess <- exped_tidy %>%
 head(peaksBySuccess)
 ```
 
-
 ```{r}
 himalayaPlot <- peaksBySuccess %>% 
   ggplot(aes(x = fct_reorder(PeakName, desc(totalExps)), y = rate)) +
@@ -53,5 +50,3 @@ himalayaPlot <- peaksBySuccess %>%
   labs(title = "First Route Success Rate of Commonly Attempted Peaks in the Himilayas", x = "Peak Name", y = "Success Rate", fill = "") 
 himalayaPlot
 ```
-
-
