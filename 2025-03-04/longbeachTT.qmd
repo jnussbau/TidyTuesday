@@ -11,4 +11,42 @@ library(tidyverse)
 longbeach <- read_csv('https://raw.githubusercontent.com/rfordatascience/tidytuesday/main/data/2025/2025-03-04/longbeach.csv')
 ```
 
+```{r}
+longbeach_sub <- longbeach %>% 
+  mutate(outcome_month = month(outcome_date),
+         outcome_year = year(outcome_date)) %>% 
+  mutate(new_out_date = my(str_c(outcome_month, outcome_year, sep = "-"))) %>% 
+  mutate(quarter = quarter(new_out_date)) %>% 
+  mutate(outcome_quarter = yq(str_c(outcome_year, ": ", quarter))) %>% 
+  mutate(outcome_type_cat = fct_recode(as.factor(outcome_type), 
+                                       "Positive" = "adoption", 
+                                       "Positive" = "community cat", 
+                                       "Positive" = "foster", 
+                                       "Positive" = "foster to adopt", 
+                                       "Positive" = "homefirst", 
+                                       "Positive" = "rescue", 
+                                       "Positive" = "return to owner", 
+                                       "Positive" = "return to rescue", 
+                                       "Positive" = "return to wild habitat", 
+                                       "Positive" = "shelter, neuter, return", 
+                                       "Positive" = "trap, neuter, release",
+                                       "Neutral" = "duplicate",
+                                       "Neutral" = "transfer",
+                                       "Neutral" = "transport",
+                                       "Neutral" = "missing",
+                                       "Negative" = "died", 
+                                       "Negative" = "disposal", 
+                                       "Negative" = "euthanasia"
+                                       )) %>% 
+  mutate(outcome_type_cat = fct_relevel(outcome_type_cat, c("Positive", "Neutral", "Negative"))) %>% 
+  select(outcome_quarter, outcome_type_cat) %>% 
+  filter(!is.na(outcome_type_cat) & !is.na(outcome_quarter))
+ggplot(longbeach_sub, aes(x = outcome_quarter, fill = outcome_type_cat)) + 
+    geom_bar(position = "fill") +
+    scale_fill_manual(values = c("#87EBA8", "#EEEEEE", "#F28268")) +
+    labs(x = "", y = "Proportion of Outcomes", fill = "Outcome", title = "Shelter Outcomes by Quarter, 2017-2024") +
+    theme_classic()
+```
+
+
 
